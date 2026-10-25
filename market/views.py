@@ -34,7 +34,9 @@ def listing_new(request):
 
 @login_required
 def listing_edit(request, pk):
-    listing = get_object_or_404(Listing, pk=pk)
+    # Patch Made Here
+    # Removed is_staff check
+    listing = get_object_or_404(Listing, pk=pk, owner=request.user)
     form = ListingForm(request.POST or None, instance=listing)
     if request.method == "POST" and form.is_valid():
         form.save()
@@ -45,7 +47,9 @@ def listing_edit(request, pk):
 @login_required
 @require_POST
 def listing_sold(request, pk):
-    listing = get_object_or_404(Listing, pk=pk)
+    # Patch Made Here
+    # Removed is_staff check
+    listing = get_object_or_404(Listing, pk=pk, owner=request.user)
     listing.status = "sold"
     listing.save(update_fields=["status"])
     return redirect("listing_detail", pk=listing.pk)
@@ -54,7 +58,9 @@ def listing_sold(request, pk):
 @login_required
 @require_POST
 def listing_delete(request, pk):
-    listing = get_object_or_404(Listing, pk=pk)
+    # Patch Made Here
+    # Removed is_staff check
+    listing = get_object_or_404(Listing, pk=pk, owner=request.user)
     listing.status = "removed"
     listing.save(update_fields=["status"])
     return redirect("home")
@@ -67,12 +73,17 @@ def mine(request):
     threads = threads.select_related("listing", "buyer").distinct()
     return render(request, "market/mine.html", {"listings": listings, "threads": threads})
 
-# !!
-# Defect Found Here
-# If someone has the URL of the thread, they can access the thread detail view even if they are not staff.
 @login_required
 def thread_detail(request, pk):
-    thread = get_object_or_404(Thread.objects.select_related("listing", "buyer", "listing__owner"), pk=pk)
+    # Patch Made Here
+    # Removed is_staff check
+    thread = get_object_or_404(
+        (
+            Thread.objects.filter(buyer=request.user)
+            | Thread.objects.filter(listing__owner=request.user)
+        ).select_related("listing", "buyer", "listing__owner"),
+        pk=pk,
+    )
     if request.method == "POST":
         body = (request.POST.get("body") or "").strip()
         if body:
@@ -104,10 +115,6 @@ def sign_in(request):
         return redirect("home")
     return render(request, "market/login.html", {"form": form})
 
-#!!
-# Defect Found Here
-# The profile view does not check if the user is staff, but the desk view does. 
-# This could be a security concern if the profile view should also restrict access to staff only. 
 @login_required
 def profile(request):
     form = ProfileForm(request.POST or None, instance=request.user)
