@@ -12,8 +12,12 @@
   </dl>
   {% if user.is_authenticated %}
     <p><a href="{% url 'start_thread' listing.pk %}">Message seller</a></p>
-    <p><a href="{% url 'listing_edit' listing.pk %}">Edit listing</a></p>
-    <form method="post" action="{% url 'listing_sold' listing.pk %}">{% csrf_token %}<button type="submit">Mark sold</button></form>
+    <!-- Patch Made Here -->
+    <!-- Removed is_staff check -->
+    {% if user == listing.owner %}
+      <p><a href="{% url 'listing_edit' listing.pk %}">Edit listing</a></p>
+      <form method="post" action="{% url 'listing_sold' listing.pk %}">{% csrf_token %}<button type="submit">Mark sold</button></form>
+    {% endif %}
   {% else %}
     <p><a href="{% url 'sign_in' %}">Sign in to message the seller</a></p>
   {% endif %}

@@ -9,13 +9,9 @@ class ListingForm(forms.ModelForm):
         model = Listing
         fields = ["title", "description", "price", "category", "seller_note"]
 
-# !!
-# Defect Found Here 
-# is_staff field is used to determine if the user should be shown on the department board (easy access)
+# Patch Made Here
+# Removed is_staff from profile form
 class ProfileForm(forms.ModelForm):
     class Meta:
         model = User
-        fields = ["first_name", "last_name", "email", "is_staff"]
-        labels = {
-            "is_staff": "Show my name on the department board",
-        }
+        fields = ["first_name", "last_name", "email"]
