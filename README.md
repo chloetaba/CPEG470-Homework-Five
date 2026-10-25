@@ -2,7 +2,7 @@
 
 Campus buy/sell board. Students post textbooks, chargers, and dorm leftovers. Buyers message the seller. Sellers can mark a listing sold.
 
-Django, templates, SQLite.
+Django, templates, SQLite for local development, PostgreSQL for Vercel deployments.
 
 ## Features
 
@@ -10,7 +10,7 @@ Django, templates, SQLite.
 - Public board with a category filter
 - Post, edit, and mark sold
 - Message threads on a listing
-- Profile page (name, email, department-board flag)
+- Profile page (name and email)
 - Department desk for board accounts
 
 ## Run locally
@@ -35,6 +35,21 @@ docker compose up --build
 ```
 
 The app listens on port 3000.
+
+## Deploy to Vercel
+
+Provision a managed PostgreSQL database and add its connection string as the
+`DATABASE_URL` environment variable in the Vercel project settings. Also set a
+unique `SECRET_KEY`. Redeploy after adding the variables. Vercel deployments
+fail during startup if `DATABASE_URL` is missing; local development continues
+to use SQLite.
+
+Before serving traffic against a new database, apply migrations once from a
+trusted environment with the production `DATABASE_URL` configured:
+
+```bash
+python manage.py migrate
+```
 
 ## Demo accounts
 

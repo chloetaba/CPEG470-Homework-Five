@@ -1,6 +1,9 @@
 import os
 from pathlib import Path
 
+import dj_database_url
+from django.core.exceptions import ImproperlyConfigured
+
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 SECRET_KEY = os.environ.get("SECRET_KEY", "swapshelf-dev-secret")
@@ -45,12 +48,27 @@ TEMPLATES = [
     }
 ]
 
-DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": os.environ.get("DATABASE_PATH", BASE_DIR / "data" / "swapshelf.db"),
+DATABASE_URL = os.environ.get("DATABASE_URL")
+if DATABASE_URL:
+    DATABASES = {
+        "default": dj_database_url.parse(
+            DATABASE_URL,
+            conn_max_age=600,
+            conn_health_checks=True,
+            ssl_require=True,
+        )
     }
-}
+elif os.environ.get("VERCEL"):
+    raise ImproperlyConfigured(
+        "Set DATABASE_URL to a persistent PostgreSQL database for Vercel deployments."
+    )
+else:
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.sqlite3",
+            "NAME": os.environ.get("DATABASE_PATH", BASE_DIR / "data" / "swapshelf.db"),
+        }
+    }
 
 AUTH_PASSWORD_VALIDATORS = []
 LANGUAGE_CODE = "en-us"
