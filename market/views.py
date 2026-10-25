@@ -67,7 +67,9 @@ def mine(request):
     threads = threads.select_related("listing", "buyer").distinct()
     return render(request, "market/mine.html", {"listings": listings, "threads": threads})
 
-
+# !!
+# Defect Found Here
+# If someone has the URL of the thread, they can access the thread detail view even if they are not staff.
 @login_required
 def thread_detail(request, pk):
     thread = get_object_or_404(Thread.objects.select_related("listing", "buyer", "listing__owner"), pk=pk)
@@ -102,6 +104,7 @@ def sign_in(request):
         return redirect("home")
     return render(request, "market/login.html", {"form": form})
 
+#!!
 # Defect Found Here
 # The profile view does not check if the user is staff, but the desk view does. 
 # This could be a security concern if the profile view should also restrict access to staff only. 

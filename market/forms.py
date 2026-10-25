@@ -9,6 +9,7 @@ class ListingForm(forms.ModelForm):
         model = Listing
         fields = ["title", "description", "price", "category", "seller_note"]
 
+# !!
 # Defect Found Here 
 # is_staff field is used to determine if the user should be shown on the department board (easy access)
 class ProfileForm(forms.ModelForm):
